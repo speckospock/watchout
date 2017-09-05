@@ -48,10 +48,30 @@ class Enemy {
   }
 }
 
+class Player {
+  constructor() {
+    this.x = Math.floor(options.width / 2);
+    this.y = Math.floor(options.height / 2);
+    this.r = 12;
+  }
+}
+
+var playerMove = () => {
+  d3player.attr('cx', event.pageX - 6);
+  d3player.attr('cy', event.pageY - 59);
+};
+
 var board = d3.selectAll('div.board')
   .append('svg:svg')
   .attr('width', options.width)
   .attr('height', options.height)
+  .on('mousedown', () => {
+    console.log(d3.event);
+    board.on('mousemove', playerMove);
+  })
+  .on('mouseup', () => {
+    board.on('mousemove', () => true);
+  })
   .style('background-color', 'yellow');
 
 var generateEnemies = () => {
@@ -74,6 +94,19 @@ var d3Enemies = board.selectAll('circle.enemy')
   .attr('cy', (enemy) => enemy.y)
   .attr('r', (enemy) => enemy.r);
 
+var player = new Player;
+var players = [player];
+
+var d3player = board.selectAll('circle.player')
+  .data(players)
+  .enter()
+  .append('svg:circle')
+  .attr('class', 'player')
+  .attr('cx', (player) => player.x)
+  .attr('cy', (player) => player.y)
+  .attr('r', (player) => player.r)
+  .style('fill', 'red');
+
 setInterval(() => {
   d3Enemies.transition()
     .duration(1000)
@@ -82,4 +115,9 @@ setInterval(() => {
 }, 1000);
 //console.log(JSON.stringify(generateEnemies()));
 
+// d3.event('drag', (d) => {
+//   console.log(d3.mouse);
+//   d.attr('cx', (player) => d3.mouse[0])
+//     .attr('cy', (player) => d3.mouse[1]);
+// })
 //.append('svg:svg').attr('width', options.width).attr('height', options.height).css('color', 'red');
