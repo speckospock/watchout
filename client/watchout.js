@@ -29,10 +29,18 @@
 */
 var currentTime = 1;
 
+var lastCollision = 0;
+
 var options = {
   width: 700,
   height: 450,
   numEnemies: 25
+};
+
+var score = {
+  current: 0,
+  best: 0,
+  collisions: 0,
 };
 
 class Enemy {
@@ -123,7 +131,15 @@ var d3player = board.selectAll('circle.player')
   .style('fill', 'red');
 
 var collisionHandle = () => {
-
+  if (score.current > score.best) {
+    score.best = score.current;
+  }
+  score.current = 0;
+  if ((currentTime - lastCollision) > 25) {
+    score.collisions++;
+  }
+  lastCollision = currentTime;
+  // console.log(score.collisions)
 };
 
 setInterval(() => {
@@ -151,10 +167,15 @@ setInterval(() => {
 }, 1000);
 
 setInterval(() => {
-  currentTime += 10;
+  currentTime += 1;
   if (currentTime > 1000) {
     currentTime -= 1000;
   }
+
+  score.current += .1;
+  d3.selectAll('span.currentScore').text(Math.round(score.current));
+  d3.selectAll('span.highscoreText').text(Math.round(score.best));
+  d3.selectAll('span.collisionsText').text(score.collisions);
   //console.log(currentTime / 1000)
   //console.log(allEnemies[0].diffX(), allEnemies[0].diffY(), currentTime);
   d3Enemies.each((d, i) => {
@@ -184,4 +205,4 @@ setInterval(() => {
       }
     }
   });
-}, 10);
+}, 1);
