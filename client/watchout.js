@@ -40,9 +40,11 @@ class Enemy {
     this.y = Math.random() * options.height;
     this.r = 12;
   }
-  newPos() {
-    this.x = Math.random() * options.width;
-    this.y = Math.random() * options.height;
+  newX() {
+    return Math.random() * options.width;
+  }
+  newY() {
+    return Math.random() * options.height;
   }
 }
 
@@ -61,8 +63,10 @@ var generateEnemies = () => {
   return output;
 };
 
-var allEnemies = board.selectAll('circle.enemy')
-  .data(generateEnemies())
+var allEnemies = generateEnemies();
+
+var d3Enemies = board.selectAll('circle.enemy')
+  .data(allEnemies)
   .enter()
   .append('svg:circle')
   .attr('class', 'enemy')
@@ -70,6 +74,12 @@ var allEnemies = board.selectAll('circle.enemy')
   .attr('cy', (enemy) => enemy.y)
   .attr('r', (enemy) => enemy.r);
 
+setInterval(() => {
+  d3Enemies.transition()
+    .duration(1000)
+    .attr('cx', (enemy) => enemy.newX())
+    .attr('cy', (enemy) => enemy.newY());
+}, 1000);
 //console.log(JSON.stringify(generateEnemies()));
 
 //.append('svg:svg').attr('width', options.width).attr('height', options.height).css('color', 'red');
