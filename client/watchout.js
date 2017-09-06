@@ -48,8 +48,8 @@ class Enemy {
     this.x = Math.random() * options.width;
     this.y = Math.random() * options.height;
     this.r = 12;
-    this.lastx = 0;
-    this.lasty = 0;
+    this.lastx = this.x;
+    this.lasty = this.y;
   }
   newX() {
     this.lastx = this.x;
@@ -80,8 +80,10 @@ class Player {
 }
 
 var playerMove = () => {
-  d3player.attr('cx', event.pageX - 6);
-  d3player.attr('cy', event.pageY - 59);
+  //d3player.attr('cx', event.pageX - 6);
+  //d3player.attr('cy', event.pageY - 59);
+  d3player.attr('cx', event.pageX - 18);
+  d3player.attr('cy', event.pageY - 18);
 };
 
 var board = d3.selectAll('div.board')
@@ -94,8 +96,8 @@ var board = d3.selectAll('div.board')
   })
   .on('mouseup', () => {
     board.on('mousemove', () => true);
-  })
-  .style('background-color', 'yellow');
+  });
+//.style('background-color', 'yellow');
 
 var generateEnemies = () => {
   output = [];
@@ -115,7 +117,28 @@ var d3Enemies = board.selectAll('circle.enemy')
   .attr('class', 'enemy')
   .attr('cx', (enemy) => enemy.x)
   .attr('cy', (enemy) => enemy.y)
-  .attr('r', (enemy) => enemy.r);
+  .attr('r', (enemy) => enemy.r)
+  //.style('fill', 'url(https://img0.etsystatic.com/076/1/11346556/il_170x135.826379486_cvsv.jpg)');
+  .style('fill', () => {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return `rgb(${r},${g},${b})`;
+  });
+
+// var d3Enemies = board.selectAll('image.enemy')
+//   .data(allEnemies)
+//   .enter()
+//   .append('svg:image')
+//   .attr('class', 'enemy')
+//   .attr('x', (enemy) => enemy.x)
+//   .attr('y', (enemy) => enemy.y)
+//   .attr('r', (enemy) => enemy.r)
+//   .attr('height', 24)
+//   .attr('width', 24)
+//   .attr('xlink:href', 'https://img0.etsystatic.com/076/1/11346556/il_170x135.826379486_cvsv.jpg')
+//   .style('border-radius', '12px');
+// //.style('fill', 'black');
 
 var player = new Player;
 var players = [player];
@@ -128,14 +151,15 @@ var d3player = board.selectAll('circle.player')
   .attr('cx', (player) => player.x)
   .attr('cy', (player) => player.y)
   .attr('r', (player) => player.r)
-  .style('fill', 'red');
+  .style('fill', 'black')
+  .style('border', '2px');
 
 var collisionHandle = () => {
   if (score.current > score.best) {
     score.best = score.current;
   }
   score.current = 0;
-  if ((currentTime - lastCollision) > 25) {
+  if ((currentTime - lastCollision) > 10) {
     score.collisions++;
   }
   lastCollision = currentTime;
@@ -145,25 +169,33 @@ var collisionHandle = () => {
 setInterval(() => {
   d3Enemies.transition()
     .duration(1000)
-    // .tween('move', () => {
-    //   var enemy = d3.select(this);
-    //
-    //   var x1 = enemy.attr('cx');
-    //   var y1 = enemy.attr('cy');
-    //
-    //   var x2 = Math.random() * options.width;
-    //   var y2 = Math.random() * options.height;
-    //
-    //   return (time) => {
-    //     dx = x1 + x2 * time;
-    //     dy = y1 + y2 * time;
-    //
-    //     enemy.attr('cx', dx).attr('cy', dy);
-    //   }
-    // })
     .attr('cx', (enemy) => enemy.newX())
-    .attr('cy', (enemy) => enemy.newY());
-  // .ease('linear');
+    .attr('cy', (enemy) => enemy.newY())
+    // .attr('x', (enemy) => enemy.newX())
+    // .attr('y', (enemy) => enemy.newY())
+    .ease('linear')
+    .style('fill', () => {
+      var r = Math.floor(Math.random() * 255);
+      var g = Math.floor(Math.random() * 255);
+      var b = Math.floor(Math.random() * 255);
+      return `rgb(${r},${g},${b})`;
+    });
+  //     // .tween('move', () => {
+  //     //   var enemy = d3.select(this);
+  //     //
+  //     //   var x1 = enemy.attr('cx');
+  //     //   var y1 = enemy.attr('cy');
+  //     //
+  //     //   var x2 = Math.random() * options.width;
+  //     //   var y2 = Math.random() * options.height;
+  //     //
+  //     //   return (time) => {
+  //     //     dx = x1 + x2 * time;
+  //     //     dy = y1 + y2 * time;
+  //     //
+  //     //     enemy.attr('cx', dx).attr('cy', dy);
+  //     //   }
+  //     // })
 }, 1000);
 
 setInterval(() => {
@@ -176,33 +208,23 @@ setInterval(() => {
   d3.selectAll('span.currentScore').text(Math.round(score.current));
   d3.selectAll('span.highscoreText').text(Math.round(score.best));
   d3.selectAll('span.collisionsText').text(score.collisions);
-  //console.log(currentTime / 1000)
-  //console.log(allEnemies[0].diffX(), allEnemies[0].diffY(), currentTime);
+
   d3Enemies.each((d, i) => {
     var px = d3player.attr('cx');
     var py = d3player.attr('cy');
     var pr = d3player.attr('r');
 
-    //console.log(px);
-    //console.log(py);
-
     var enemyx = allEnemies[i].diffX();
     var enemyy = allEnemies[i].diffY();
-    //var enemyx = allEnemies[i].lastx + (allEnemies[i].x - allEnemies[i].lastx) * (currentTime / 1000);
-    //if (currentTime === 100) console.log(enemyx, allEnemies[i].diffX());
-    //var enemyy = allEnemies[i].lasty + (allEnemies[i].y - allEnemies[i].lasty) * (currentTime / 1000);
+    var enemyr = allEnemies[i].r;
 
-    // var dx = px - d.x;
-    // var dy = py - d.y;
+    var dx = Math.pow((px - enemyx), 2);
+    var dy = Math.pow((py - enemyy), 2);
+    //var dr = Math.pow((pr + enemyr), 2);
 
-    var dx = px - enemyx;
-    var dy = px - enemyy;
-
-    if (-(2 * pr - 1) <= dx && dx <= (2 * pr - 1)) {
-      if (-(2 * pr) <= dy && dy <= (2 * pr)) {
-        collisionHandle();
-        //console.log('Collision detected', enemyx, px, dx, enemyy, py, dy)
-      }
+    if (dx <= 576 && dy <= 576) {
+      //console.log('collision detected', dx, px, enemyx, dy, py, enemyy);
+      collisionHandle();
     }
   });
 }, 1);
