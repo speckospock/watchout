@@ -163,6 +163,10 @@ var collisionHandle = () => {
     score.collisions++;
   }
   lastCollision = currentTime;
+  board.style('background-color', '#B9C203');
+  setTimeout(() => {
+    board.style('background-color', '#EEF565');
+  }, 50);
   // console.log(score.collisions)
 };
 
